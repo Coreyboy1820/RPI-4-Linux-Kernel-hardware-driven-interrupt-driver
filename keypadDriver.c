@@ -72,9 +72,9 @@ static int my_keypad_probe(struct platform_device *pdev)
 }
 
 // do nothing but log to the device since we used the devm_ functions for allocating memory
-static int membrane_keypad_remove(struct platform_device *pdev)
+static int my_keypad_keypad_remove(struct platform_device *pdev)
 {
-    struct membrane_keypad *keypad = platform_get_drvdata(pdev);
+    struct my_keypad *keypad = platform_get_drvdata(pdev);
 
     dev_info(&pdev->dev, "Membrane keypad driver removed\n");
     return 0;
@@ -82,8 +82,8 @@ static int membrane_keypad_remove(struct platform_device *pdev)
 
 // create the table of descriptions + functions
 static struct platform_driver membrane_keypad_driver = {
-    .probe  = membrane_keypad_probe,
-    .remove = membrane_keypad_remove,
+    .probe  = my_keypad_probe,
+    .remove = my_keypad_keypad_remove,
     .driver = {
         .name = "membrane-keypad",
         .of_match_table = membrane_keypad_of_match,

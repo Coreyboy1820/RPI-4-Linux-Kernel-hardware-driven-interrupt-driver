@@ -3,6 +3,7 @@
 TARGET  ?= rpi4kerneldriver
 SRC     ?= keypadDriver.c
 OBJ     := $(SRC:.c=.o)
+obj-m += keypadDriver.o
 
 # Toolchain (Buildroot will override CC automatically)
 CC      ?= gcc
