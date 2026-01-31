@@ -1,7 +1,7 @@
 # Minimal portable Makefile (Buildroot-friendly)
 
 TARGET  ?= rpi4kerneldriver
-SRC     ?= main.c
+SRC     ?= keypadDriver.c
 OBJ     := $(SRC:.c=.o)
 
 # Toolchain (Buildroot will override CC automatically)
