@@ -1,1 +1,1 @@
-# RPI-5-Linux-Kernel-hardware-driven-interrupt-driver
+# RPI-4-Linux-Kernel-hardware-driven-interrupt-driver
