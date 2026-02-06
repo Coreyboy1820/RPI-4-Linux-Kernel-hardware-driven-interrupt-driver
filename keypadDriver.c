@@ -89,7 +89,6 @@ void get_and_register_key_press(struct work_struct *pWork)
             if(gpiod_get_value(keypad->cols->desc[colId]) > 0)
             {
                 unsigned int value = keypad->keyMap[colId][rowId];
-                dev_info(keypad->dev, "columnId: %X value: %X\n", colId, value);
 
                 // register one button press each time
                 input_report_key(keypad->input, value, 1);
@@ -144,8 +143,6 @@ static int my_keypad_probe(struct platform_device *pdev)
         return -ENOMEM;
     }
 
-    dev_info(&pdev->dev, "Allocated mem for keypad\n");
-
     keypad->dev = &pdev->dev;
 
     input = devm_input_allocate_device(&pdev->dev);
@@ -153,8 +150,6 @@ static int my_keypad_probe(struct platform_device *pdev)
     {
         return -ENOMEM;
     }
-
-    dev_info(&pdev->dev, "Allocated input for keypad\n");
 
     keypad->input = input;
 
@@ -175,8 +170,6 @@ static int my_keypad_probe(struct platform_device *pdev)
         return -1;
     }
 
-    dev_info(&pdev->dev, "Got of properties\n");
-
     // parse the keymap
     
     for(unsigned int i = 0; i < (len/sizeof(unsigned int)); i++)
@@ -185,8 +178,6 @@ static int my_keypad_probe(struct platform_device *pdev)
         unsigned int row =  (entry >> 24); // bits 31-24 bits are the row
         unsigned int col =  (entry >> 16) & 0xFF; // bits 23-16 bits are the column
         unsigned int value =  entry & 0xFFFF; // bits 15-0 bits are the value
-
-        dev_info(&pdev->dev, "parsed entry\n");
 
         if(row >= Num_Of_Rows || col >= Num_Of_Cols)
         {
@@ -205,12 +196,9 @@ static int my_keypad_probe(struct platform_device *pdev)
         for (int col = 0; col < Num_Of_Cols; col++) 
         {
             unsigned int keycode = keypad->keyMap[col][row];
-            dev_info(&pdev->dev, "keycode: %d\n", keycode);
             input_set_capability(input, EV_KEY, keycode);
         }
     }
-
-    dev_info(&pdev->dev, "Set bits\n");
 
     // register the input device in the kernel
     ret = input_register_device(input);
@@ -219,12 +207,8 @@ static int my_keypad_probe(struct platform_device *pdev)
         return ret;
     }
 
-    dev_info(&pdev->dev, "Register Inputs\n");
-
     // link the driver data we created in the probe function to the kernel object
     platform_set_drvdata(pdev, keypad);
-
-    dev_info(&pdev->dev, "Set drvdata\n");
 
     // init work for work queue
     INIT_DELAYED_WORK(&keypad->work, get_and_register_key_press);
@@ -232,24 +216,17 @@ static int my_keypad_probe(struct platform_device *pdev)
     keypad->rows = devm_gpiod_get_array(keypad->dev, "row", GPIOD_OUT_HIGH);
     keypad->cols = devm_gpiod_get_array(keypad->dev, "col", GPIOD_IN);
 
-    dev_info(&pdev->dev, "got arrays \n");
-
     request_interrupt_for_col(0)
     request_interrupt_for_col(1)
     request_interrupt_for_col(2)
     request_interrupt_for_col(3)
 
-    dev_info(&pdev->dev, "Registered interrupts\n");
-
     for(unsigned int i = 0; i < Num_Of_Rows; i++)
     {
         gpiod_set_value(keypad->rows->desc[i], 1);
 
-        dev_info(&pdev->dev, "set gpio output high\n");
-
         int rowid = desc_to_gpio(keypad->rows->desc[i]);
         int colid = desc_to_gpio(keypad->cols->desc[i]);
-        dev_info(&pdev->dev, "row: %d, col: %d\n", rowid, colid);
     }
 
     dev_info(&pdev->dev, "Membrane keypad driver probed\n");
